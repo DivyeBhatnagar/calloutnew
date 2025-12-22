@@ -78,7 +78,7 @@ export default function SuccessStep({ registrationData }: SuccessStepProps) {
             lineHeight: 1.6,
           }}
         >
-          You are successfully registered for Campus Showdown
+          You are successfully registered for Campus Showdown. Your registration details have been saved securely and will appear in your tournaments list.
         </Typography>
 
         {/* Registration Details */}

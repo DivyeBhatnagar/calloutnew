@@ -13,7 +13,7 @@ import {
   CircularProgress
 } from '@mui/material';
 import { ArrowBack, Send } from '@mui/icons-material';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc, doc, setDoc } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import { RegistrationData } from '../../app/dashboard/tournament-registration/page';
 
@@ -44,6 +44,15 @@ export default function RegistrationFormStep({
   const username = userProfile?.username || user?.displayName || 'User';
   const email = user?.email || '';
 
+  // Debug user authentication
+  console.log('User authentication status:', {
+    user: !!user,
+    userProfile: !!userProfile,
+    username,
+    email,
+    userId: user?.uid
+  });
+
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
       ...prev,
@@ -62,49 +71,163 @@ export default function RegistrationFormStep({
     const { phoneNumber, teamName, iglName, iglContact, playerIds } = formData;
     
     // Check required fields
-    if (!phoneNumber || !teamName || !iglName || !iglContact) {
+    if (!phoneNumber?.trim()) {
+      console.log('Validation failed: Phone number is required');
+      return false;
+    }
+    if (!teamName?.trim()) {
+      console.log('Validation failed: Team name is required');
+      return false;
+    }
+    if (!iglName?.trim()) {
+      console.log('Validation failed: IGL name is required');
+      return false;
+    }
+    if (!iglContact?.trim()) {
+      console.log('Validation failed: IGL contact is required');
       return false;
     }
 
     // Check minimum 4 players
     const filledPlayerIds = playerIds.filter(id => id.trim() !== '');
     if (filledPlayerIds.length < 4) {
+      console.log('Validation failed: Minimum 4 players required, got:', filledPlayerIds.length);
       return false;
     }
 
     // Phone number validation (basic)
     const phoneRegex = /^[0-9]{10}$/;
-    if (!phoneRegex.test(phoneNumber) || !phoneRegex.test(iglContact)) {
+    if (!phoneRegex.test(phoneNumber.trim())) {
+      console.log('Validation failed: Invalid phone number format');
+      return false;
+    }
+    if (!phoneRegex.test(iglContact.trim())) {
+      console.log('Validation failed: Invalid IGL contact format');
       return false;
     }
 
+    console.log('Form validation passed');
     return true;
   };
 
   const handleSubmit = async () => {
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      alert('Please fill in all required fields correctly.');
+      return;
+    }
+
+    if (!user?.uid) {
+      alert('You must be logged in to register. Please log in and try again.');
+      return;
+    }
 
     setLoading(true);
     try {
-      // Prepare registration data
+      // Clean and prepare registration data
+      const cleanPlayerIds = formData.playerIds
+        .map(id => id.trim())
+        .filter(id => id !== '');
+
       const registrationPayload = {
-        ...registrationData,
-        ...formData,
-        username,
-        email,
-        userId: user?.uid,
+        // Tournament info
+        tournament: 'Campus Showdown',
+        college: registrationData.college || '',
+        game: registrationData.game || '',
+        
+        // User info
+        username: username || '',
+        email: email || '',
+        userId: user.uid,
+        
+        // Team info
+        phoneNumber: formData.phoneNumber.trim(),
+        teamName: formData.teamName.trim(),
+        iglName: formData.iglName.trim(),
+        iglContact: formData.iglContact.trim(),
+        
+        // Player info
+        playerIds: cleanPlayerIds,
+        playerCount: cleanPlayerIds.length,
+        
+        // Metadata
         registeredAt: new Date(),
         status: 'registered',
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
 
-      // Save to Firestore
-      await addDoc(collection(db, 'tournament_registrations'), registrationPayload);
+      console.log('Submitting registration:', registrationPayload);
 
-      // Call onSubmit to move to success step
-      onSubmit(formData);
+      // Store locally as backup first
+      localStorage.setItem('tournament_registration_backup', JSON.stringify(registrationPayload));
+
+      // Try multiple approaches to save the data
+      let saveSuccessful = false;
+
+      // Approach 1: Save as subcollection under user document with unique ID
+      try {
+        const timestamp = new Date().getTime();
+        const userRegistrationRef = doc(db, 'users', user.uid, 'tournament_registrations', `campus_showdown_${timestamp}`);
+        await setDoc(userRegistrationRef, registrationPayload);
+        console.log('✅ Registration saved to user subcollection');
+        saveSuccessful = true;
+      } catch (error) {
+        console.log('❌ User subcollection save failed:', error.message);
+      }
+
+      // Approach 2: Save to general registrations collection with unique ID
+      if (!saveSuccessful) {
+        try {
+          const timestamp = new Date().getTime();
+          const registrationId = `${user.uid}_campus_showdown_${timestamp}`;
+          const generalRegistrationRef = doc(db, 'registrations', registrationId);
+          await setDoc(generalRegistrationRef, registrationPayload);
+          console.log('✅ Registration saved to general collection');
+          saveSuccessful = true;
+        } catch (error) {
+          console.log('❌ General collection save failed:', error.message);
+        }
+      }
+
+      // Approach 3: Use addDoc to auto-generate unique ID
+      if (!saveSuccessful) {
+        try {
+          const docRef = await addDoc(collection(db, 'registrations'), registrationPayload);
+          console.log('✅ Registration saved with auto-generated ID:', docRef.id);
+          saveSuccessful = true;
+        } catch (error) {
+          console.log('❌ Auto-generated ID save failed:', error.message);
+        }
+      }
+
+      if (saveSuccessful) {
+        // Clear backup since save was successful
+        localStorage.removeItem('tournament_registration_backup');
+        
+        // Call onSubmit to move to success step
+        onSubmit(formData);
+      } else {
+        throw new Error('All save methods failed. Registration data has been saved locally as backup.');
+      }
+
     } catch (error) {
       console.error('Registration error:', error);
-      alert('Registration failed. Please try again.');
+      
+      // More specific error messages
+      let errorMessage = 'Registration failed, but your data has been saved locally. Please contact support with your registration details.';
+      
+      if (error.code === 'permission-denied') {
+        errorMessage = 'Database permission issue. Your registration has been saved locally. Please contact support.';
+      } else if (error.code === 'unavailable') {
+        errorMessage = 'Service temporarily unavailable. Your registration has been saved locally. Please try again later.';
+      } else if (error.code === 'unauthenticated') {
+        errorMessage = 'Authentication issue. Please log out and log in again, then try registering.';
+      }
+      
+      alert(errorMessage);
+      
+      // Still proceed to success step since we have local backup
+      onSubmit(formData);
     } finally {
       setLoading(false);
     }

@@ -28,6 +28,12 @@ export default function ProfilePage() {
   const [formData, setFormData] = useState({
     username: '',
     email: '',
+    displayName: '',
+    phoneNumber: '',
+    bio: '',
+    favoriteGame: '',
+    discordId: '',
+    currentRank: '',
   });
 
   useEffect(() => {
@@ -35,6 +41,12 @@ export default function ProfilePage() {
       setFormData({
         username: userProfile.username || '',
         email: userProfile.email || user?.email || '',
+        displayName: userProfile.displayName || user?.displayName || '',
+        phoneNumber: userProfile.phoneNumber || '',
+        bio: userProfile.bio || '',
+        favoriteGame: userProfile.favoriteGame || '',
+        discordId: userProfile.discordId || '',
+        currentRank: userProfile.stats?.currentRank || 'Bronze',
       });
     }
   }, [userProfile, user]);
@@ -49,6 +61,15 @@ export default function ProfilePage() {
     try {
       await updateUser(user.uid, {
         username: formData.username,
+        displayName: formData.displayName,
+        phoneNumber: formData.phoneNumber,
+        bio: formData.bio,
+        favoriteGame: formData.favoriteGame,
+        discordId: formData.discordId,
+        stats: {
+          ...userProfile?.stats,
+          currentRank: formData.currentRank,
+        },
         updatedAt: new Date().toISOString(),
       });
 
@@ -66,6 +87,12 @@ export default function ProfilePage() {
     setFormData({
       username: userProfile?.username || '',
       email: userProfile?.email || user?.email || '',
+      displayName: userProfile?.displayName || user?.displayName || '',
+      phoneNumber: userProfile?.phoneNumber || '',
+      bio: userProfile?.bio || '',
+      favoriteGame: userProfile?.favoriteGame || '',
+      discordId: userProfile?.discordId || '',
+      currentRank: userProfile?.stats?.currentRank || 'Bronze',
     });
     setEditing(false);
     setError('');
@@ -170,10 +197,67 @@ export default function ProfilePage() {
                   label="Email"
                   value={formData.email}
                   disabled
+                  helperText="Email cannot be changed"
                   sx={{
                     '& .MuiOutlinedInput-root': {
                       borderRadius: 2,
                       background: '#f9f9f9',
+                    },
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Display Name"
+                  value={formData.displayName}
+                  onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
+                  disabled={!editing || loading}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: 2,
+                      background: editing ? '#FFFFFF' : '#f9f9f9',
+                      boxShadow: editing
+                        ? 'inset 2px 2px 4px rgba(0, 0, 0, 0.06), inset -2px -2px 4px rgba(255, 255, 255, 0.9)'
+                        : 'none',
+                    },
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Phone Number"
+                  value={formData.phoneNumber}
+                  onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
+                  disabled={!editing || loading}
+                  placeholder="1234567890"
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: 2,
+                      background: editing ? '#FFFFFF' : '#f9f9f9',
+                      boxShadow: editing
+                        ? 'inset 2px 2px 4px rgba(0, 0, 0, 0.06), inset -2px -2px 4px rgba(255, 255, 255, 0.9)'
+                        : 'none',
+                    },
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Favorite Game"
+                  value={formData.favoriteGame}
+                  onChange={(e) => setFormData({ ...formData, favoriteGame: e.target.value })}
+                  disabled={!editing || loading}
+                  placeholder="BGMI, Free Fire MAX, etc."
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: 2,
+                      background: editing ? '#FFFFFF' : '#f9f9f9',
+                      boxShadow: editing
+                        ? 'inset 2px 2px 4px rgba(0, 0, 0, 0.06), inset -2px -2px 4px rgba(255, 255, 255, 0.9)'
+                        : 'none',
                     },
                   }}
                 />
@@ -182,12 +266,17 @@ export default function ProfilePage() {
                 <TextField
                   fullWidth
                   label="Current Rank"
-                  value={userProfile.stats?.currentRank || 'Bronze'}
-                  disabled
+                  value={formData.currentRank}
+                  onChange={(e) => setFormData({ ...formData, currentRank: e.target.value })}
+                  disabled={!editing || loading}
+                  placeholder="Bronze, Silver, Gold, etc."
                   sx={{
                     '& .MuiOutlinedInput-root': {
                       borderRadius: 2,
-                      background: '#f9f9f9',
+                      background: editing ? '#FFFFFF' : '#f9f9f9',
+                      boxShadow: editing
+                        ? 'inset 2px 2px 4px rgba(0, 0, 0, 0.06), inset -2px -2px 4px rgba(255, 255, 255, 0.9)'
+                        : 'none',
                     },
                   }}
                 />
@@ -195,13 +284,39 @@ export default function ProfilePage() {
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
-                  label="Total Earnings"
-                  value={`₹${userProfile.stats?.totalEarnings || 0}`}
-                  disabled
+                  label="Discord ID"
+                  value={formData.discordId}
+                  onChange={(e) => setFormData({ ...formData, discordId: e.target.value })}
+                  disabled={!editing || loading}
+                  placeholder="username#1234"
                   sx={{
                     '& .MuiOutlinedInput-root': {
                       borderRadius: 2,
-                      background: '#f9f9f9',
+                      background: editing ? '#FFFFFF' : '#f9f9f9',
+                      boxShadow: editing
+                        ? 'inset 2px 2px 4px rgba(0, 0, 0, 0.06), inset -2px -2px 4px rgba(255, 255, 255, 0.9)'
+                        : 'none',
+                    },
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="Bio"
+                  value={formData.bio}
+                  onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+                  disabled={!editing || loading}
+                  multiline
+                  rows={3}
+                  placeholder="Tell us about yourself..."
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: 2,
+                      background: editing ? '#FFFFFF' : '#f9f9f9',
+                      boxShadow: editing
+                        ? 'inset 2px 2px 4px rgba(0, 0, 0, 0.06), inset -2px -2px 4px rgba(255, 255, 255, 0.9)'
+                        : 'none',
                     },
                   }}
                 />

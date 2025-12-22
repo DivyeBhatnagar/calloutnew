@@ -55,6 +55,7 @@ export default function TopNavbar() {
     { label: 'Tournaments', href: '/dashboard/tournaments' },
     { label: 'Profile', href: '/dashboard/profile' },
     { label: 'Settings', href: '/dashboard/settings' },
+    { label: 'Admin', href: '/dashboard/admin' },
   ];
 
   return (

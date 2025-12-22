@@ -5,11 +5,16 @@ import ProtectedRoute from '../../components/ProtectedRoute';
 import DashboardLayout from '../../components/Dashboard/DashboardLayout';
 import StatsCards from '../../components/Dashboard/StatsCards';
 import QuickActions from '../../components/Dashboard/QuickActions';
+import EsportsProgressCard from '../../components/Dashboard/EsportsProgressCard';
+import PlatformSnapshot from '../../components/Dashboard/PlatformSnapshot';
+import RecentActivityFeed from '../../components/Dashboard/RecentActivityFeed';
 import {
   Container,
   Typography,
   Box,
   Paper,
+  Grid,
+  Divider,
 } from '@mui/material';
 
 export default function Dashboard() {
@@ -27,7 +32,7 @@ export default function Dashboard() {
       <DashboardLayout>
         <Container maxWidth="lg">
           {/* Welcome Header */}
-          <Box sx={{ mb: 4 }}>
+          <Box sx={{ mb: 6 }}>
             <Typography
               variant="h4"
               sx={{
@@ -50,42 +55,76 @@ export default function Dashboard() {
           </Box>
 
           {/* Stats Cards */}
-          <Box sx={{ mb: 4 }}>
+          <Box sx={{ mb: 6 }}>
             <StatsCards />
           </Box>
 
-          {/* Quick Actions */}
-          <Paper
-            sx={{
-              p: 4,
-              borderRadius: 3,
-              background: '#FFFFFF',
-              boxShadow: '8px 8px 16px rgba(0, 0, 0, 0.08), -8px -8px 16px rgba(255, 255, 255, 0.9)',
-              border: '1px solid #f0f0f0',
-              textAlign: 'center',
-            }}
-          >
-            <Typography
-              variant="h6"
-              sx={{
-                fontWeight: 600,
-                color: '#333',
-                mb: 2,
-              }}
-            >
-              Ready to compete?
-            </Typography>
-            <Typography
-              variant="body2"
-              sx={{
-                color: '#666',
-                mb: 3,
-              }}
-            >
-              Join exciting tournaments and showcase your gaming skills
-            </Typography>
-            <QuickActions />
-          </Paper>
+          {/* Esports Progress & Platform Snapshot Row */}
+          <Grid container spacing={4} sx={{ mb: 6 }}>
+            <Grid item xs={12} md={8}>
+              <EsportsProgressCard />
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <Box>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontWeight: 600,
+                    color: '#333',
+                    mb: 2,
+                  }}
+                >
+                  Platform Stats
+                </Typography>
+                <PlatformSnapshot />
+              </Box>
+            </Grid>
+          </Grid>
+
+          {/* Recent Activity & Quick Actions Row */}
+          <Grid container spacing={4} sx={{ mb: 4 }}>
+            <Grid item xs={12} md={6}>
+              <RecentActivityFeed />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              {/* Enhanced Quick Actions */}
+              <Paper
+                sx={{
+                  p: 4,
+                  borderRadius: 3,
+                  background: '#FFFFFF',
+                  boxShadow: '12px 12px 24px rgba(0, 0, 0, 0.1), -12px -12px 24px rgba(255, 255, 255, 0.9)',
+                  border: '1px solid #f0f0f0',
+                  textAlign: 'center',
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                }}
+              >
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontWeight: 600,
+                    color: '#333',
+                    mb: 2,
+                  }}
+                >
+                  Ready to compete?
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: '#666',
+                    mb: 3,
+                  }}
+                >
+                  Join exciting tournaments and showcase your gaming skills
+                </Typography>
+                <QuickActions />
+              </Paper>
+            </Grid>
+          </Grid>
         </Container>
       </DashboardLayout>
     </ProtectedRoute>

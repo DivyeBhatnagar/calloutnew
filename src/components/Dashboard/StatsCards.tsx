@@ -14,7 +14,6 @@ import {
 import {
   EmojiEvents,
   TrendingUp,
-  AccountBalanceWallet,
   Stars,
 } from '@mui/icons-material';
 
@@ -22,7 +21,6 @@ interface UserStats {
   tournamentsParticipated: number;
   tournamentsWon: number;
   currentRank: string;
-  totalEarnings: number;
 }
 
 export default function StatsCards() {
@@ -44,13 +42,11 @@ export default function StatsCards() {
         
         // Get stats from user profile or calculate
         const currentRank = userProfile?.stats?.currentRank || 'Bronze';
-        const totalEarnings = userProfile?.stats?.totalEarnings || 0;
 
         setStats({
           tournamentsParticipated,
           tournamentsWon,
           currentRank,
-          totalEarnings,
         });
       } catch (error) {
         console.error('Error fetching user stats:', error);
@@ -59,7 +55,6 @@ export default function StatsCards() {
           tournamentsParticipated: userProfile?.stats?.tournamentsParticipated || 0,
           tournamentsWon: userProfile?.stats?.tournamentsWon || 0,
           currentRank: userProfile?.stats?.currentRank || 'Bronze',
-          totalEarnings: userProfile?.stats?.totalEarnings || 0,
         });
       } finally {
         setLoading(false);
@@ -91,19 +86,12 @@ export default function StatsCards() {
       color: '#ed6c02',
       bgColor: '#fff3e0',
     },
-    {
-      title: 'Total Earnings',
-      value: `₹${stats?.totalEarnings || 0}`,
-      icon: AccountBalanceWallet,
-      color: '#9c27b0',
-      bgColor: '#f3e5f5',
-    },
   ];
 
   if (loading) {
     return (
       <Grid container spacing={3}>
-        {[1, 2, 3, 4].map((item) => (
+        {[1, 2, 3].map((item) => (
           <Grid item xs={12} sm={6} md={3} key={item}>
             <Card
               sx={{
@@ -146,18 +134,40 @@ export default function StatsCards() {
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <Box
                   sx={{
-                    width: 48,
-                    height: 48,
-                    borderRadius: 2,
-                    background: card.bgColor,
+                    width: 56,
+                    height: 56,
+                    borderRadius: 3,
+                    background: `linear-gradient(135deg, ${card.bgColor} 0%, ${card.color}20 100%)`,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     mr: 2,
-                    boxShadow: 'inset 2px 2px 4px rgba(0, 0, 0, 0.1), inset -2px -2px 4px rgba(255, 255, 255, 0.9)',
+                    boxShadow: `
+                      inset 3px 3px 6px rgba(0, 0, 0, 0.1), 
+                      inset -3px -3px 6px rgba(255, 255, 255, 0.9),
+                      0 4px 8px rgba(0, 0, 0, 0.1)
+                    `,
+                    position: 'relative',
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      top: 2,
+                      left: 2,
+                      right: 2,
+                      bottom: 2,
+                      borderRadius: 2,
+                      background: `linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, transparent 50%)`,
+                      pointerEvents: 'none',
+                    },
                   }}
                 >
-                  <card.icon sx={{ color: card.color, fontSize: 24 }} />
+                  <card.icon 
+                    sx={{ 
+                      color: card.color, 
+                      fontSize: 28,
+                      filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2))',
+                    }} 
+                  />
                 </Box>
                 <Box>
                   <Typography
@@ -167,8 +177,13 @@ export default function StatsCards() {
                     {card.title}
                   </Typography>
                   <Typography
-                    variant="h5"
-                    sx={{ color: '#333', fontWeight: 700, lineHeight: 1.2 }}
+                    variant="h4"
+                    sx={{ 
+                      color: '#333', 
+                      fontWeight: 700, 
+                      lineHeight: 1.2,
+                      textShadow: '0 1px 2px rgba(0, 0, 0, 0.1)',
+                    }}
                   >
                     {card.value}
                   </Typography>

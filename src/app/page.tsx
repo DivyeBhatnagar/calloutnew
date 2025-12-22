@@ -7,7 +7,6 @@ import WhySection from '@/components/Home Page/WhySection';
 import FeaturedGamesSection from '@/components/Home Page/FeaturedGamesSection';
 import AboutSection from '@/components/Home Page/AboutSection';
 import FeaturesSection from '@/components/Home Page/FeaturesSection';
-import TournamentSection from '@/components/Home Page/TournamentSection';
 import HowItWorksSection from '@/components/Home Page/HowItWorksSection';
 import CTASection from '@/components/Home Page/CTASection';
 import Footer from '@/components/Footer';
@@ -21,7 +20,6 @@ export default function Home() {
       <FeaturedGamesSection />
       <AboutSection />
       <FeaturesSection />
-      <TournamentSection />
       <HowItWorksSection />
       <CTASection />
       <Footer />

@@ -19,7 +19,7 @@ const colleges = [
   },
   {
     id: 'IIMT',
-    name: 'IIMT University',
+    name: 'IIMT College',
     logo: '/Media/Colleges/IIMT.png',
   },
   {

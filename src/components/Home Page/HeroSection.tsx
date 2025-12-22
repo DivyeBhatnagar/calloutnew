@@ -94,12 +94,12 @@ export default function HeroSection() {
                 className="gaming-vector-image"
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ 
-                  scale: [0.8, 1, 1.05, 1],
+                  scale: [0.8, 1, 1.02, 1],
                   opacity: 1 
                 }}
                 transition={{ 
                   scale: {
-                    duration: 3,
+                    duration: 4,
                     repeat: Infinity,
                     repeatType: "reverse",
                     ease: "easeInOut"
