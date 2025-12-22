@@ -8,7 +8,7 @@ export default function QuickActions() {
   const router = useRouter();
 
   const handleJoinTournament = () => {
-    router.push('/dashboard/tournaments');
+    router.push('/dashboard/tournament-registration');
   };
 
   return (

@@ -51,6 +51,7 @@ export default function TopNavbar() {
 
   const navigationLinks = [
     { label: 'Dashboard', href: '/dashboard' },
+    { label: 'Register Tournament', href: '/dashboard/tournament-registration' },
     { label: 'Tournaments', href: '/dashboard/tournaments' },
     { label: 'Profile', href: '/dashboard/profile' },
     { label: 'Settings', href: '/dashboard/settings' },
