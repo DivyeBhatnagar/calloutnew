@@ -1,0 +1,57 @@
+<svg width="1920" height="1080" viewBox="0 0 1920 1080" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Base Background -->
+  <rect width="1920" height="1080" fill="#000000"/>
+  
+  <!-- Gaming Grid Pattern -->
+  <defs>
+    <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
+      <path d="M 50 0 L 0 0 0 50" fill="none" stroke="#FF0000" stroke-width="0.5" opacity="0.1"/>
+    </pattern>
+    
+    <!-- Circuit Pattern -->
+    <pattern id="circuit" width="200" height="200" patternUnits="userSpaceOnUse">
+      <circle cx="20" cy="20" r="2" fill="#FF0000" opacity="0.3"/>
+      <circle cx="180" cy="180" r="2" fill="#FF0000" opacity="0.2"/>
+      <line x1="20" y1="20" x2="180" y2="20" stroke="#FF0000" stroke-width="1" opacity="0.1"/>
+      <line x1="20" y1="20" x2="20" y2="180" stroke="#FF0000" stroke-width="1" opacity="0.1"/>
+    </pattern>
+  </defs>
+  
+  <!-- Apply Patterns -->
+  <rect width="1920" height="1080" fill="url(#grid)"/>
+  <rect width="1920" height="1080" fill="url(#circuit)"/>
+  
+  <!-- Gradient Overlays -->
+  <defs>
+    <radialGradient id="redGlow1" cx="20%" cy="30%" r="40%">
+      <stop offset="0%" style="stop-color:#FF0000;stop-opacity:0.15"/>
+      <stop offset="100%" style="stop-color:#FF0000;stop-opacity:0"/>
+    </radialGradient>
+    
+    <radialGradient id="redGlow2" cx="80%" cy="70%" r="35%">
+      <stop offset="0%" style="stop-color:#FF0000;stop-opacity:0.1"/>
+      <stop offset="100%" style="stop-color:#FF0000;stop-opacity:0"/>
+    </radialGradient>
+    
+    <linearGradient id="darkOverlay" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#000000;stop-opacity:0.8"/>
+      <stop offset="50%" style="stop-color:#000000;stop-opacity:0.6"/>
+      <stop offset="100%" style="stop-color:#000000;stop-opacity:0.9"/>
+    </linearGradient>
+  </defs>
+  
+  <rect width="1920" height="1080" fill="url(#redGlow1)"/>
+  <rect width="1920" height="1080" fill="url(#redGlow2)"/>
+  <rect width="1920" height="1080" fill="url(#darkOverlay)"/>
+  
+  <!-- Gaming Elements -->
+  <g opacity="0.1">
+    <!-- Hexagonal shapes -->
+    <polygon points="100,50 150,75 150,125 100,150 50,125 50,75" fill="none" stroke="#FF0000" stroke-width="2"/>
+    <polygon points="1800,900 1850,925 1850,975 1800,1000 1750,975 1750,925" fill="none" stroke="#FF0000" stroke-width="2"/>
+    
+    <!-- Circuit lines -->
+    <path d="M 0 200 Q 200 200 400 100 T 800 150" fill="none" stroke="#FF0000" stroke-width="1"/>
+    <path d="M 1920 800 Q 1720 800 1520 900 T 1120 850" fill="none" stroke="#FF0000" stroke-width="1"/>
+  </g>
+</svg>
