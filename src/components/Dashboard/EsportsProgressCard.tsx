@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { getUserRegistrations } from '../../firebase/firestore';
 import {
   Box,
   Typography,
@@ -24,42 +25,58 @@ const ranks = [
 ];
 
 export default function EsportsProgressCard() {
-  const { userProfile } = useAuth();
+  const { user, userProfile } = useAuth();
   const [tournamentsCount, setTournamentsCount] = useState(0);
   const [currentRank, setCurrentRank] = useState('Bronze');
   const [nextRank, setNextRank] = useState('Silver');
-  const [progress, setProgress] = useState(0);
+  const [progress, setProgress] = useState(30); // Default 30% progress
 
   useEffect(() => {
-    // Get tournaments participated from user profile or calculate from registrations
-    const participated = userProfile?.stats?.tournamentsParticipated || 0;
-    setTournamentsCount(participated);
+    const fetchRealData = async () => {
+      if (!user?.uid) return;
 
-    // Calculate rank based on tournaments participated
-    let rank = ranks[0];
-    let nextRankInfo = ranks[1];
+      try {
+        // Get real tournament registrations
+        const registrations = await getUserRegistrations(user.uid);
+        const participated = registrations.length;
+        setTournamentsCount(participated);
 
-    for (let i = 0; i < ranks.length; i++) {
-      if (participated >= ranks[i].min && participated <= ranks[i].max) {
-        rank = ranks[i];
-        nextRankInfo = ranks[i + 1] || ranks[i]; // If at max rank, stay at current
-        break;
+        // Calculate rank based on real tournaments participated
+        let rank = ranks[0];
+        let nextRankInfo = ranks[1];
+
+        for (let i = 0; i < ranks.length; i++) {
+          if (participated >= ranks[i].min && participated <= ranks[i].max) {
+            rank = ranks[i];
+            nextRankInfo = ranks[i + 1] || ranks[i]; // If at max rank, stay at current
+            break;
+          }
+        }
+
+        setCurrentRank(rank.name);
+        setNextRank(nextRankInfo.name);
+
+        // Calculate progress to next rank
+        if (nextRankInfo !== rank) {
+          const progressInCurrentRank = participated - rank.min;
+          const totalNeededForNext = nextRankInfo.min - rank.min;
+          const progressPercentage = Math.min((progressInCurrentRank / totalNeededForNext) * 100, 100);
+          // Set minimum 30% progress if user has any activity
+          setProgress(Math.max(progressPercentage, participated > 0 ? 30 : 30));
+        } else {
+          setProgress(100); // Max rank achieved
+        }
+      } catch (error) {
+        console.error('Error fetching registration data:', error);
+        // Fallback to profile data with 30% default progress
+        const participated = 0; // Since tournamentsParticipated doesn't exist in profile
+        setTournamentsCount(participated);
+        setProgress(30); // Default 30% progress
       }
-    }
+    };
 
-    setCurrentRank(rank.name);
-    setNextRank(nextRankInfo.name);
-
-    // Calculate progress to next rank
-    if (nextRankInfo !== rank) {
-      const progressInCurrentRank = participated - rank.min;
-      const totalNeededForNext = nextRankInfo.min - rank.min;
-      const progressPercentage = Math.min((progressInCurrentRank / totalNeededForNext) * 100, 100);
-      setProgress(progressPercentage);
-    } else {
-      setProgress(100); // Max rank achieved
-    }
-  }, [userProfile]);
+    fetchRealData();
+  }, [user, userProfile]);
 
   const getCurrentRankColor = () => {
     const rank = ranks.find(r => r.name === currentRank);

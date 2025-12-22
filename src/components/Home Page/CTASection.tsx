@@ -59,9 +59,9 @@ export default function CTASection() {
             transition={{ delay: 0.6, duration: 0.6 }}
             viewport={{ once: true }}
           >
-            <button className="btn-primary text-lg px-12 py-4 relative z-10">
+            <a href="/authentication/register" className="btn-primary text-lg px-12 py-4 relative z-10">
               Join CALLOUT ESPORTS
-            </button>
+            </a>
             
             {/* 3D Trophy Element */}
             <motion.div

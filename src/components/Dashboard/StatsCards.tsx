@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { getUserTournaments } from '../../firebase/firestore';
+import { getUserTournaments, getUserRegistrations } from '../../firebase/firestore';
 import {
   Grid,
   Card,
@@ -33,15 +33,27 @@ export default function StatsCards() {
       if (!user?.uid) return;
 
       try {
-        // Get user tournaments from Firestore
+        // Get user registrations from Firestore (real data)
+        const registrations = await getUserRegistrations(user.uid);
+        
+        // Get user tournaments (for wins calculation)
         const tournaments = await getUserTournaments(user.uid);
         
         // Calculate stats from real data
-        const tournamentsParticipated = tournaments.length;
+        const tournamentsParticipated = registrations.length;
         const tournamentsWon = tournaments.filter(t => t.winner === user.uid).length;
         
-        // Get stats from user profile or calculate
-        const currentRank = userProfile?.stats?.currentRank || 'Bronze';
+        // Get current rank from user profile or calculate based on participation
+        let currentRank = userProfile?.stats?.currentRank || 'Bronze';
+        
+        // Auto-calculate rank based on tournaments participated if not set
+        if (!userProfile?.stats?.currentRank && tournamentsParticipated > 0) {
+          if (tournamentsParticipated >= 21) currentRank = 'Diamond';
+          else if (tournamentsParticipated >= 11) currentRank = 'Platinum';
+          else if (tournamentsParticipated >= 6) currentRank = 'Gold';
+          else if (tournamentsParticipated >= 3) currentRank = 'Silver';
+          else currentRank = 'Bronze';
+        }
 
         setStats({
           tournamentsParticipated,
@@ -52,7 +64,7 @@ export default function StatsCards() {
         console.error('Error fetching user stats:', error);
         // Fallback to profile data or zeros
         setStats({
-          tournamentsParticipated: userProfile?.stats?.tournamentsParticipated || 0,
+          tournamentsParticipated: 0,
           tournamentsWon: userProfile?.stats?.tournamentsWon || 0,
           currentRank: userProfile?.stats?.currentRank || 'Bronze',
         });

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { getUserRegistrations } from '../../firebase/firestore';
 import {
   Box,
   Typography,
@@ -11,7 +12,6 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
-  Chip,
 } from '@mui/material';
 import {
   EmojiEvents,
@@ -24,7 +24,6 @@ interface ActivityItem {
   id: string;
   type: 'registration' | 'rank_up' | 'achievement' | 'welcome';
   message: string;
-  timestamp: Date;
   icon: React.ReactNode;
   color: string;
 }
@@ -34,78 +33,68 @@ export default function RecentActivityFeed() {
   const [activities, setActivities] = useState<ActivityItem[]>([]);
 
   useEffect(() => {
-    // Generate recent activities based on user data
-    const recentActivities: ActivityItem[] = [];
+    const generateActivities = async () => {
+      const recentActivities: ActivityItem[] = [];
 
-    // Welcome message for new users
-    if (user) {
-      recentActivities.push({
-        id: 'welcome',
-        type: 'welcome',
-        message: 'Welcome to CallOut Esports! 🎮',
-        timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
-        icon: <PersonAdd />,
-        color: '#1976d2',
-      });
-    }
+      // Welcome message for new users
+      if (user) {
+        recentActivities.push({
+          id: 'welcome',
+          type: 'welcome',
+          message: 'Welcome to CallOut Esports! 🎮',
+          icon: <PersonAdd />,
+          color: '#1976d2',
+        });
+      }
 
-    // Tournament registration activity
-    if (userProfile?.stats?.tournamentsParticipated > 0) {
-      recentActivities.push({
-        id: 'tournament_reg',
-        type: 'registration',
-        message: 'Successfully registered for Campus Showdown',
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
-        icon: <EmojiEvents />,
-        color: '#2e7d32',
-      });
-    }
+      // Tournament registration activity (from real data)
+      if (user?.uid) {
+        try {
+          const registrations = await getUserRegistrations(user.uid);
+          if (registrations.length > 0) {
+            const latestRegistration = registrations[0]; // Most recent
+            recentActivities.push({
+              id: 'tournament_reg',
+              type: 'registration',
+              message: `Successfully registered for ${latestRegistration.tournament || 'Campus Showdown'}`,
+              icon: <EmojiEvents />,
+              color: '#2e7d32',
+            });
+          }
+        } catch (error) {
+          console.log('Could not fetch registrations for activity feed:', error);
+        }
+      }
 
-    // Rank achievement
-    const currentRank = userProfile?.stats?.currentRank || 'Bronze';
-    if (currentRank !== 'Bronze') {
-      recentActivities.push({
-        id: 'rank_up',
-        type: 'rank_up',
-        message: `Achieved ${currentRank} rank! 🏆`,
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
-        icon: <TrendingUp />,
-        color: '#ed6c02',
-      });
-    }
+      // Rank achievement
+      const currentRank = userProfile?.stats?.currentRank || 'Bronze';
+      if (currentRank !== 'Bronze') {
+        recentActivities.push({
+          id: 'rank_up',
+          type: 'rank_up',
+          message: `Achieved ${currentRank} rank! 🏆`,
+          icon: <TrendingUp />,
+          color: '#ed6c02',
+        });
+      }
 
-    // Profile completion
-    if (userProfile?.username) {
-      recentActivities.push({
-        id: 'profile_complete',
-        type: 'achievement',
-        message: 'Profile setup completed',
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2), // 2 days ago
-        icon: <CheckCircle />,
-        color: '#9c27b0',
-      });
-    }
+      // Profile completion
+      if (userProfile?.username) {
+        recentActivities.push({
+          id: 'profile_complete',
+          type: 'achievement',
+          message: 'Profile setup completed',
+          icon: <CheckCircle />,
+          color: '#9c27b0',
+        });
+      }
 
-    // Sort by timestamp and take only 3 most recent
-    const sortedActivities = recentActivities
-      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
-      .slice(0, 3);
+      // Take only 3 most recent
+      setActivities(recentActivities.slice(0, 3));
+    };
 
-    setActivities(sortedActivities);
+    generateActivities();
   }, [user, userProfile]);
-
-  const getTimeAgo = (timestamp: Date) => {
-    const now = new Date();
-    const diffInMinutes = Math.floor((now.getTime() - timestamp.getTime()) / (1000 * 60));
-    
-    if (diffInMinutes < 60) {
-      return `${diffInMinutes}m ago`;
-    } else if (diffInMinutes < 1440) {
-      return `${Math.floor(diffInMinutes / 60)}h ago`;
-    } else {
-      return `${Math.floor(diffInMinutes / 1440)}d ago`;
-    }
-  };
 
   return (
     <Card
@@ -173,19 +162,6 @@ export default function RecentActivityFeed() {
                     >
                       {activity.message}
                     </Typography>
-                  }
-                  secondary={
-                    <Chip
-                      label={getTimeAgo(activity.timestamp)}
-                      size="small"
-                      sx={{
-                        height: 20,
-                        fontSize: 11,
-                        background: '#f5f5f5',
-                        color: '#666',
-                        mt: 0.5,
-                      }}
-                    />
                   }
                 />
               </ListItem>

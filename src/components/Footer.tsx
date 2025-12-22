@@ -5,8 +5,7 @@ import {
   Instagram, 
   YouTube, 
   LinkedIn, 
-  Email,
-  Language
+  Email
 } from '@mui/icons-material';
 
 // Discord SVG Icon Component

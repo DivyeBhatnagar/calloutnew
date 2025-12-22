@@ -100,9 +100,9 @@ export default function HowItWorksSection() {
           transition={{ duration: 0.6, delay: 0.5 }}
           viewport={{ once: true }}
         >
-          <button className="btn-primary">
+          <a href="/authentication/register" className="btn-primary">
             Start Your Journey
-          </button>
+          </a>
         </motion.div>
       </div>
     </section>

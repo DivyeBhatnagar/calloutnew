@@ -74,9 +74,9 @@ export default function HeroSection() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.1, duration: 0.8 }}
             >
-              <button className="btn-cta-premium">
+              <a href="/authentication/register" className="btn-cta-premium">
                 Join Tournament
-              </button>
+              </a>
             </motion.div>
           </motion.div>
 

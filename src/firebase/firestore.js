@@ -7,7 +7,6 @@ import {
   getDocs, 
   setDoc, 
   updateDoc, 
-  deleteDoc, 
   query, 
   where, 
   orderBy, 
@@ -75,10 +74,10 @@ export const getTournaments = async () => {
 export const getUserTournaments = async (uid) => {
   try {
     const tournamentsRef = collection(db, 'tournaments');
+    // Remove orderBy to avoid compound index requirement
     const q = query(
       tournamentsRef, 
-      where('participants', 'array-contains', uid),
-      orderBy('createdAt', 'desc')
+      where('participants', 'array-contains', uid)
     );
     const querySnapshot = await getDocs(q);
     
@@ -87,9 +86,65 @@ export const getUserTournaments = async (uid) => {
       tournaments.push({ id: doc.id, ...doc.data() });
     });
     
-    return tournaments;
+    // Sort in JavaScript instead of Firestore to avoid compound index
+    return tournaments.sort((a, b) => {
+      const aTime = a.createdAt?.toDate?.() || new Date(0);
+      const bTime = b.createdAt?.toDate?.() || new Date(0);
+      return bTime.getTime() - aTime.getTime();
+    });
   } catch (error) {
     console.error('Error getting user tournaments:', error);
+    throw error;
+  }
+};
+
+// Get user tournament registrations
+export const getUserRegistrations = async (uid) => {
+  try {
+    const registrations = [];
+    
+    // Try to get from user subcollection first
+    try {
+      const userRegistrationsRef = collection(db, 'users', uid, 'tournament_registrations');
+      const userQuerySnapshot = await getDocs(userRegistrationsRef);
+      
+      userQuerySnapshot.forEach((doc) => {
+        registrations.push({ id: doc.id, ...doc.data() });
+      });
+    } catch (error) {
+      console.log('User subcollection not accessible:', error.message);
+    }
+    
+    // Also get from general registrations collection
+    try {
+      const generalRegistrationsRef = collection(db, 'registrations');
+      const q = query(generalRegistrationsRef, where('userId', '==', uid));
+      const generalQuerySnapshot = await getDocs(q);
+      
+      generalQuerySnapshot.forEach((doc) => {
+        // Avoid duplicates by checking if registration already exists
+        const existingReg = registrations.find(reg => 
+          reg.tournament === doc.data().tournament && 
+          reg.game === doc.data().game &&
+          reg.college === doc.data().college
+        );
+        
+        if (!existingReg) {
+          registrations.push({ id: doc.id, ...doc.data() });
+        }
+      });
+    } catch (error) {
+      console.log('General registrations collection not accessible:', error.message);
+    }
+    
+    // Sort by registration date
+    return registrations.sort((a, b) => {
+      const aTime = a.registeredAt?.toDate?.() || a.createdAt?.toDate?.() || new Date(0);
+      const bTime = b.registeredAt?.toDate?.() || b.createdAt?.toDate?.() || new Date(0);
+      return bTime.getTime() - aTime.getTime();
+    });
+  } catch (error) {
+    console.error('Error getting user registrations:', error);
     throw error;
   }
 };
