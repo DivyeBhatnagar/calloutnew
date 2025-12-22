@@ -88,8 +88,8 @@ export default function GameSelectionStep({ onSelect, onBack, selectedGame }: Ga
                 {/* Game Logo */}
                 <Box
                   sx={{
-                    width: 120,
-                    height: 120,
+                    width: 140,
+                    height: 80,
                     borderRadius: 3,
                     overflow: 'hidden',
                     margin: '0 auto 2rem auto',
@@ -97,19 +97,24 @@ export default function GameSelectionStep({ onSelect, onBack, selectedGame }: Ga
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
+                    padding: 1,
+                    border: '1px solid #e0e0e0',
                     boxShadow: '4px 4px 8px rgba(0, 0, 0, 0.1), -4px -4px 8px rgba(255, 255, 255, 0.9)',
                   }}
                 >
                   <Image
                     src={game.logo}
                     alt={game.name}
-                    width={120}
-                    height={120}
+                    width={140}
+                    height={80}
                     style={{
-                      objectFit: 'cover',
+                      objectFit: 'contain',
                       width: '100%',
                       height: '100%',
+                      maxWidth: '100%',
+                      maxHeight: '100%',
                     }}
+                    priority
                   />
                 </Box>
 

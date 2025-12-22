@@ -93,8 +93,8 @@ export default function CollegeSelectionStep({ onSelect, onBack, selectedCollege
                 {/* College Logo */}
                 <Box
                   sx={{
-                    width: 80,
-                    height: 80,
+                    width: 120,
+                    height: 60,
                     borderRadius: 2,
                     overflow: 'hidden',
                     margin: '0 auto 1.5rem auto',
@@ -102,18 +102,23 @@ export default function CollegeSelectionStep({ onSelect, onBack, selectedCollege
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
+                    padding: 1,
+                    border: '1px solid #e0e0e0',
                   }}
                 >
                   <Image
                     src={college.logo}
                     alt={college.name}
-                    width={80}
-                    height={80}
+                    width={120}
+                    height={60}
                     style={{
-                      objectFit: 'cover',
+                      objectFit: 'contain',
                       width: '100%',
                       height: '100%',
+                      maxWidth: '100%',
+                      maxHeight: '100%',
                     }}
+                    priority
                   />
                 </Box>
 
