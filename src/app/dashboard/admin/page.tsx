@@ -3,9 +3,13 @@
 import ProtectedRoute from '../../../components/ProtectedRoute';
 import DashboardLayout from '../../../components/Dashboard/DashboardLayout';
 import RegistrationDataExporter from '../../../components/Admin/RegistrationDataExporter';
-import { Container, Typography, Box, Alert } from '@mui/material';
+import QueryManager from '../../../components/Admin/QueryManager';
+import { Container, Typography, Box, Alert, Tabs, Tab } from '@mui/material';
+import { useState } from 'react';
 
 export default function AdminPage() {
+  const [tabValue, setTabValue] = useState(0);
+
   return (
     <ProtectedRoute>
       <DashboardLayout>
@@ -30,16 +34,27 @@ export default function AdminPage() {
                 mb: 4,
               }}
             >
-              Manage tournament registrations and export data
+              Manage tournament registrations, queries, and export data
             </Typography>
 
             <Alert severity="warning" sx={{ mb: 4 }}>
-              <strong>Admin Access:</strong> This page allows you to view and download all tournament registration data. 
+              <strong>Admin Access:</strong> This page allows you to view and manage all platform data. 
               Make sure you have proper permissions in Firestore to access this data.
             </Alert>
 
-            {/* Registration Data Exporter */}
-            <RegistrationDataExporter />
+            {/* Tabs */}
+            <Tabs
+              value={tabValue}
+              onChange={(e, newValue) => setTabValue(newValue)}
+              sx={{ mb: 4, borderBottom: '1px solid #f0f0f0' }}
+            >
+              <Tab label="Tournament Registrations" />
+              <Tab label="User Queries" />
+            </Tabs>
+
+            {/* Tab Content */}
+            {tabValue === 0 && <RegistrationDataExporter />}
+            {tabValue === 1 && <QueryManager />}
           </Box>
         </Container>
       </DashboardLayout>

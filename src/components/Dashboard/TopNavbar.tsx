@@ -53,6 +53,7 @@ export default function TopNavbar() {
     { label: 'Dashboard', href: '/dashboard' },
     { label: 'Register Tournament', href: '/dashboard/tournament-registration' },
     { label: 'Tournaments', href: '/dashboard/tournaments' },
+    { label: 'My Queries', href: '/dashboard/my-queries' },
     { label: 'Profile', href: '/dashboard/profile' },
     { label: 'Settings', href: '/dashboard/settings' },
     { label: 'Admin', href: '/dashboard/admin' },

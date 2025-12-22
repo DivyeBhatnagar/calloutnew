@@ -149,6 +149,176 @@ export const getUserRegistrations = async (uid) => {
   }
 };
 
+// Query operations
+export const getAllQueries = async () => {
+  try {
+    const queries = [];
+    
+    // Get from registrations collection (where type = 'query')
+    try {
+      const registrationsRef = collection(db, 'registrations');
+      const querySnapshot = await getDocs(registrationsRef);
+      
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        if (data.type === 'query') {
+          queries.push({ id: doc.id, ...data });
+        }
+      });
+      console.log('Found queries in registrations:', queries.length);
+    } catch (error) {
+      console.log('Registrations collection not accessible:', error.message);
+    }
+    
+    // Also get from queries collection
+    try {
+      const queriesRef = collection(db, 'queries');
+      const querySnapshot = await getDocs(queriesRef);
+      
+      querySnapshot.forEach((doc) => {
+        // Avoid duplicates
+        const existingQuery = queries.find(query => 
+          query.subject === doc.data().subject && 
+          query.email === doc.data().email &&
+          Math.abs((query.createdAt?.toDate?.()?.getTime() || 0) - (doc.data().createdAt?.toDate?.()?.getTime() || 0)) < 1000
+        );
+        
+        if (!existingQuery) {
+          queries.push({ id: doc.id, ...doc.data() });
+        }
+      });
+      console.log('Total queries found:', queries.length);
+    } catch (error) {
+      console.log('Queries collection not accessible:', error.message);
+    }
+    
+    // Sort by creation date
+    return queries.sort((a, b) => {
+      const aTime = a.createdAt?.toDate?.() || new Date(0);
+      const bTime = b.createdAt?.toDate?.() || new Date(0);
+      return bTime.getTime() - aTime.getTime();
+    });
+  } catch (error) {
+    console.error('Error getting queries:', error);
+    throw error;
+  }
+};
+
+export const getUserQueries = async (uid) => {
+  try {
+    const queries = [];
+    
+    // Get from registrations collection (where type = 'query' and userId matches)
+    try {
+      const registrationsRef = collection(db, 'registrations');
+      const querySnapshot = await getDocs(registrationsRef);
+      
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        if (data.type === 'query' && data.userId === uid) {
+          queries.push({ id: doc.id, ...data });
+        }
+      });
+      console.log('Found user queries in registrations:', queries.length);
+    } catch (error) {
+      console.log('Registrations collection not accessible:', error.message);
+    }
+    
+    // Also get from user subcollection
+    try {
+      const userQueriesRef = collection(db, 'users', uid, 'queries');
+      const userQuerySnapshot = await getDocs(userQueriesRef);
+      
+      userQuerySnapshot.forEach((doc) => {
+        // Avoid duplicates
+        const existingQuery = queries.find(query => 
+          query.subject === doc.data().subject && 
+          Math.abs((query.createdAt?.toDate?.()?.getTime() || 0) - (doc.data().createdAt?.toDate?.()?.getTime() || 0)) < 1000
+        );
+        
+        if (!existingQuery) {
+          queries.push({ id: doc.id, ...doc.data() });
+        }
+      });
+    } catch (error) {
+      console.log('User queries subcollection not accessible:', error.message);
+    }
+    
+    // Also get from queries collection
+    try {
+      const queriesRef = collection(db, 'queries');
+      const querySnapshot = await getDocs(queriesRef);
+      
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        if (data.userId === uid) {
+          // Avoid duplicates
+          const existingQuery = queries.find(query => 
+            query.subject === data.subject && 
+            Math.abs((query.createdAt?.toDate?.()?.getTime() || 0) - (data.createdAt?.toDate?.()?.getTime() || 0)) < 1000
+          );
+          
+          if (!existingQuery) {
+            queries.push({ id: doc.id, ...data });
+          }
+        }
+      });
+      console.log('Total user queries found:', queries.length);
+    } catch (error) {
+      console.log('Queries collection not accessible:', error.message);
+    }
+    
+    // Sort by creation date
+    return queries.sort((a, b) => {
+      const aTime = a.createdAt?.toDate?.() || new Date(0);
+      const bTime = b.createdAt?.toDate?.() || new Date(0);
+      return bTime.getTime() - aTime.getTime();
+    });
+  } catch (error) {
+    console.error('Error getting user queries:', error);
+    throw error;
+  }
+};
+
+export const updateQueryStatus = async (queryId, status, adminReply = null) => {
+  try {
+    const updateData = {
+      status,
+      updatedAt: new Date(),
+    };
+    
+    if (adminReply) {
+      updateData.adminReply = adminReply;
+      updateData.repliedAt = new Date();
+    }
+    
+    // Try to update in queries collection first
+    try {
+      const queryRef = doc(db, 'queries', queryId);
+      await updateDoc(queryRef, updateData);
+      console.log('✅ Query updated in queries collection');
+      return true;
+    } catch (error) {
+      console.log('❌ Queries collection update failed:', error.message);
+    }
+    
+    // Try to update in registrations collection
+    try {
+      const registrationRef = doc(db, 'registrations', queryId);
+      await updateDoc(registrationRef, updateData);
+      console.log('✅ Query updated in registrations collection');
+      return true;
+    } catch (error) {
+      console.log('❌ Registrations collection update failed:', error.message);
+    }
+    
+    throw new Error('Failed to update query in any collection');
+  } catch (error) {
+    console.error('Error updating query:', error);
+    throw error;
+  }
+};
+
 // Match operations
 export const getUserMatches = async (uid) => {
   try {

@@ -21,7 +21,6 @@ import {
 } from '@mui/material';
 import {
   Notifications,
-  Security,
   Language,
   ExitToApp,
   Delete,
@@ -80,18 +79,6 @@ export default function SettingsPage() {
                   />
                   <ListItemSecondaryAction>
                     <Switch defaultChecked />
-                  </ListItemSecondaryAction>
-                </ListItem>
-                <ListItem>
-                  <ListItemIcon>
-                    <Security />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary="Two-Factor Authentication"
-                    secondary="Add an extra layer of security to your account"
-                  />
-                  <ListItemSecondaryAction>
-                    <Switch />
                   </ListItemSecondaryAction>
                 </ListItem>
                 <ListItem>
@@ -190,6 +177,7 @@ export default function SettingsPage() {
               </Typography>
               <Button
                 variant="contained"
+                onClick={() => router.push('/query')}
                 sx={{
                   borderRadius: 2,
                   textTransform: 'none',

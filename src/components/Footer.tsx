@@ -29,6 +29,7 @@ export default function Footer() {
     { label: 'Tournaments', href: '/dashboard/tournaments' },
     { label: 'Register Tournament', href: '/dashboard/tournament-registration' },
     { label: 'Dashboard', href: '/dashboard' },
+    { label: 'Query', href: '/query' },
     { 
       label: 'Contact', 
       onClick: handleEmailClick
