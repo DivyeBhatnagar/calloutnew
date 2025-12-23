@@ -114,7 +114,7 @@ export default function RegistrationDataExporter() {
       
     } catch (error) {
       console.error('Error fetching registrations:', error);
-      setError(`Failed to fetch registrations: ${error.message}`);
+      setError(`Failed to fetch registrations: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setLoading(false);
     }

@@ -39,7 +39,7 @@ interface Tournament {
   logoUrl?: string;
   description?: string;
   status: 'draft' | 'active' | 'closed';
-  maxSlots?: number;
+  maxSlots: number;
   currentRegistrations?: number;
   createdAt: string;
   updatedAt: string;
@@ -394,27 +394,27 @@ export default function TournamentManager() {
                             Registrations
                           </Typography>
                           <Typography variant="body2" sx={{ color: '#1976d2', fontWeight: 600 }}>
-                            {tournament.currentRegistrations || 0} / {tournament.maxSlots || 50}
+                            {tournament.currentRegistrations || 0} / {tournament.maxSlots}
                           </Typography>
                         </Box>
                         <LinearProgress
                           variant="determinate"
-                          value={Math.min(((tournament.currentRegistrations || 0) / (tournament.maxSlots || 50)) * 100, 100)}
+                          value={Math.min(((tournament.currentRegistrations || 0) / tournament.maxSlots) * 100, 100)}
                           sx={{
                             height: 8,
                             borderRadius: 4,
                             bgcolor: '#f0f0f0',
                             '& .MuiLinearProgress-bar': {
-                              bgcolor: tournament.currentRegistrations >= (tournament.maxSlots || 50) 
+                              bgcolor: (tournament.currentRegistrations || 0) >= tournament.maxSlots 
                                 ? '#d32f2f' 
-                                : tournament.currentRegistrations >= (tournament.maxSlots || 50) * 0.8 
+                                : (tournament.currentRegistrations || 0) >= tournament.maxSlots * 0.8 
                                   ? '#ed6c02' 
                                   : '#1976d2',
                               borderRadius: 4,
                             },
                           }}
                         />
-                        {tournament.currentRegistrations >= (tournament.maxSlots || 50) && (
+                        {(tournament.currentRegistrations || 0) >= tournament.maxSlots && (
                           <Typography variant="caption" sx={{ color: '#d32f2f', fontWeight: 600, mt: 0.5, display: 'block' }}>
                             Tournament Full
                           </Typography>
@@ -539,21 +539,21 @@ export default function TournamentManager() {
                         Current Registrations
                       </Typography>
                       <Typography variant="h6" sx={{ color: '#1976d2', fontWeight: 700 }}>
-                        {viewingTournament.currentRegistrations || 0} / {viewingTournament.maxSlots || 50}
+                        {viewingTournament.currentRegistrations || 0} / {viewingTournament.maxSlots}
                       </Typography>
                     </Box>
                     
                     <LinearProgress
                       variant="determinate"
-                      value={Math.min(((viewingTournament.currentRegistrations || 0) / (viewingTournament.maxSlots || 50)) * 100, 100)}
+                      value={Math.min(((viewingTournament.currentRegistrations || 0) / viewingTournament.maxSlots) * 100, 100)}
                       sx={{
                         height: 12,
                         borderRadius: 6,
                         bgcolor: '#e0e0e0',
                         '& .MuiLinearProgress-bar': {
-                          bgcolor: viewingTournament.currentRegistrations >= (viewingTournament.maxSlots || 50) 
+                          bgcolor: (viewingTournament.currentRegistrations || 0) >= viewingTournament.maxSlots 
                             ? '#d32f2f' 
-                            : viewingTournament.currentRegistrations >= (viewingTournament.maxSlots || 50) * 0.8 
+                            : (viewingTournament.currentRegistrations || 0) >= viewingTournament.maxSlots * 0.8 
                               ? '#ed6c02' 
                               : '#1976d2',
                           borderRadius: 6,
@@ -566,7 +566,7 @@ export default function TournamentManager() {
                         0%
                       </Typography>
                       <Typography variant="caption" sx={{ color: '#666', fontWeight: 600 }}>
-                        {Math.round(((viewingTournament.currentRegistrations || 0) / (viewingTournament.maxSlots || 50)) * 100)}% Full
+                        {Math.round(((viewingTournament.currentRegistrations || 0) / viewingTournament.maxSlots) * 100)}% Full
                       </Typography>
                       <Typography variant="caption" sx={{ color: '#666' }}>
                         100%
@@ -574,7 +574,7 @@ export default function TournamentManager() {
                     </Box>
                   </Box>
                   
-                  {viewingTournament.currentRegistrations >= (viewingTournament.maxSlots || 50) && (
+                  {(viewingTournament.currentRegistrations || 0) >= viewingTournament.maxSlots && (
                     <Alert severity="error" sx={{ mt: 2 }}>
                       <Typography variant="body2" sx={{ fontWeight: 600 }}>
                         Tournament is Full! No more registrations accepted.
@@ -582,11 +582,11 @@ export default function TournamentManager() {
                     </Alert>
                   )}
                   
-                  {viewingTournament.currentRegistrations >= (viewingTournament.maxSlots || 50) * 0.8 && 
-                   viewingTournament.currentRegistrations < (viewingTournament.maxSlots || 50) && (
+                  {(viewingTournament.currentRegistrations || 0) >= viewingTournament.maxSlots * 0.8 && 
+                   (viewingTournament.currentRegistrations || 0) < viewingTournament.maxSlots && (
                     <Alert severity="warning" sx={{ mt: 2 }}>
                       <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                        Tournament is almost full! Only {(viewingTournament.maxSlots || 50) - (viewingTournament.currentRegistrations || 0)} slots remaining.
+                        Tournament is almost full! Only {viewingTournament.maxSlots - (viewingTournament.currentRegistrations || 0)} slots remaining.
                       </Typography>
                     </Alert>
                   )}
@@ -603,7 +603,7 @@ export default function TournamentManager() {
                         <strong>Status:</strong> {viewingTournament.status.toUpperCase()}
                       </Typography>
                       <Typography variant="body2" sx={{ mb: 1 }}>
-                        <strong>Max Slots:</strong> {viewingTournament.maxSlots || 50}
+                        <strong>Max Slots:</strong> {viewingTournament.maxSlots}
                       </Typography>
                       <Typography variant="body2" sx={{ mb: 1 }}>
                         <strong>Created:</strong> {formatDate(viewingTournament.createdAt)}
@@ -626,7 +626,7 @@ export default function TournamentManager() {
                         <strong>Games:</strong> {viewingTournament.games?.length || 0}
                       </Typography>
                       <Typography variant="body2">
-                        <strong>Available Slots:</strong> {(viewingTournament.maxSlots || 50) - (viewingTournament.currentRegistrations || 0)}
+                        <strong>Available Slots:</strong> {viewingTournament.maxSlots - (viewingTournament.currentRegistrations || 0)}
                       </Typography>
                     </Paper>
                   </Grid>

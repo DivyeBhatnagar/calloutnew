@@ -173,7 +173,7 @@ export default function RegistrationFormStep({
         console.log('✅ Registration saved to user subcollection');
         saveSuccessful = true;
       } catch (error) {
-        console.log('❌ User subcollection save failed:', error.message);
+        console.log('❌ User subcollection save failed:', error instanceof Error ? error.message : 'Unknown error');
       }
 
       // Approach 2: Save to general registrations collection with unique ID
@@ -186,7 +186,7 @@ export default function RegistrationFormStep({
           console.log('✅ Registration saved to general collection');
           saveSuccessful = true;
         } catch (error) {
-          console.log('❌ General collection save failed:', error.message);
+          console.log('❌ General collection save failed:', error instanceof Error ? error.message : 'Unknown error');
         }
       }
 
@@ -197,7 +197,7 @@ export default function RegistrationFormStep({
           console.log('✅ Registration saved with auto-generated ID:', docRef.id);
           saveSuccessful = true;
         } catch (error) {
-          console.log('❌ Auto-generated ID save failed:', error.message);
+          console.log('❌ Auto-generated ID save failed:', error instanceof Error ? error.message : 'Unknown error');
         }
       }
 
@@ -217,12 +217,14 @@ export default function RegistrationFormStep({
       // More specific error messages
       let errorMessage = 'Registration failed, but your data has been saved locally. Please contact support with your registration details.';
       
-      if (error.code === 'permission-denied') {
-        errorMessage = 'Database permission issue. Your registration has been saved locally. Please contact support.';
-      } else if (error.code === 'unavailable') {
-        errorMessage = 'Service temporarily unavailable. Your registration has been saved locally. Please try again later.';
-      } else if (error.code === 'unauthenticated') {
-        errorMessage = 'Authentication issue. Please log out and log in again, then try registering.';
+      if (error && typeof error === 'object' && 'code' in error) {
+        if (error.code === 'permission-denied') {
+          errorMessage = 'Database permission issue. Your registration has been saved locally. Please contact support.';
+        } else if (error.code === 'unavailable') {
+          errorMessage = 'Service temporarily unavailable. Your registration has been saved locally. Please try again later.';
+        } else if (error.code === 'unauthenticated') {
+          errorMessage = 'Authentication issue. Please log out and log in again, then try registering.';
+        }
       }
       
       alert(errorMessage);

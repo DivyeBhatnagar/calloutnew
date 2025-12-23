@@ -20,6 +20,14 @@ interface UserProfile {
   role: string;
   emailVerified?: boolean;
   createdAt: string;
+  displayName?: string;
+  phoneNumber?: string;
+  bio?: string;
+  favoriteGame?: string;
+  discordId?: string;
+  photoURL?: string;
+  updatedAt?: string;
+  promotedToAdminAt?: string;
   stats?: {
     tournamentsWon: number;
     winRate: number;
@@ -37,7 +45,7 @@ interface AuthContextType {
   signInWithGoogle: () => Promise<any>;
   logout: () => Promise<void>;
   isAdmin: () => boolean;
-  getUserProfile: (uid: string) => Promise<UserProfile | null>;
+  getUserProfile: (uid: string) => Promise<any>;
   checkEmailVerification: () => Promise<boolean>;
   resendVerificationEmail: () => Promise<boolean>;
 }
@@ -108,7 +116,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(user);
         // Get user profile from Firestore
         const profile = await getUserProfile(user.uid);
-        setUserProfile(profile);
+        setUserProfile(profile as UserProfile | null);
       } else {
         setUser(null);
         setUserProfile(null);

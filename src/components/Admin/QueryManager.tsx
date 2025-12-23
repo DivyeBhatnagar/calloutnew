@@ -179,7 +179,7 @@ export default function QueryManager() {
     setError('');
 
     try {
-      await updateQueryStatus(selectedQuery.id, 'replied', replyText.trim());
+      await (updateQueryStatus as any)(selectedQuery.id, 'replied', replyText.trim());
       setSuccess('Reply sent successfully!');
       
       // Update local state
