@@ -1,9 +1,11 @@
 'use client';
 
-import ProtectedRoute from '../../../components/ProtectedRoute';
+import AdminRoute from '../../../components/AdminRoute';
 import DashboardLayout from '../../../components/Dashboard/DashboardLayout';
 import RegistrationDataExporter from '../../../components/Admin/RegistrationDataExporter';
 import QueryManager from '../../../components/Admin/QueryManager';
+import AdminUserManager from '../../../components/Admin/AdminUserManager';
+import AdminStatusChecker from '../../../components/Admin/AdminStatusChecker';
 import { Container, Typography, Box, Alert, Tabs, Tab } from '@mui/material';
 import { useState } from 'react';
 
@@ -11,7 +13,7 @@ export default function AdminPage() {
   const [tabValue, setTabValue] = useState(0);
 
   return (
-    <ProtectedRoute>
+    <AdminRoute>
       <DashboardLayout>
         <Container maxWidth="lg">
           <Box sx={{ py: 4 }}>
@@ -42,6 +44,9 @@ export default function AdminPage() {
               Make sure you have proper permissions in Firestore to access this data.
             </Alert>
 
+            {/* Admin Status Checker */}
+            <AdminStatusChecker />
+
             {/* Tabs */}
             <Tabs
               value={tabValue}
@@ -50,14 +55,16 @@ export default function AdminPage() {
             >
               <Tab label="Tournament Registrations" />
               <Tab label="User Queries" />
+              <Tab label="User Management" />
             </Tabs>
 
             {/* Tab Content */}
             {tabValue === 0 && <RegistrationDataExporter />}
             {tabValue === 1 && <QueryManager />}
+            {tabValue === 2 && <AdminUserManager />}
           </Box>
         </Container>
       </DashboardLayout>
-    </ProtectedRoute>
+    </AdminRoute>
   );
 }

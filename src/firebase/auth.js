@@ -14,6 +14,7 @@ import {
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 import { auth, googleProvider, db } from './config';
+import { shouldBeAdmin } from '../utils/adminSetup';
 
 // Sign up function with email verification
 export const signup = async (email, password, username) => {
@@ -32,11 +33,13 @@ export const signup = async (email, password, username) => {
     });
 
     // Create user profile in Firestore (but mark as unverified)
+    const userRole = shouldBeAdmin(email) ? 'admin' : 'gamer';
+    
     await setDoc(doc(db, 'users', result.user.uid), {
       uid: result.user.uid,
       email: email,
       username: username,
-      role: 'gamer',
+      role: userRole,
       emailVerified: false,
       createdAt: new Date().toISOString(),
       stats: {
@@ -46,6 +49,11 @@ export const signup = async (email, password, username) => {
         currentRank: 'Bronze'
       }
     });
+
+    // Log admin promotion if applicable
+    if (userRole === 'admin') {
+      console.log(`🔑 User ${email} automatically promoted to admin during signup`);
+    }
 
     return result;
   } catch (error) {
@@ -78,11 +86,13 @@ export const signInWithGoogle = async () => {
     
     if (!userDoc.exists()) {
       console.log('Creating new user document...');
+      const userRole = shouldBeAdmin(result.user.email) ? 'admin' : 'gamer';
+      
       const userData = {
         uid: result.user.uid,
         email: result.user.email,
         username: result.user.displayName || result.user.email.split('@')[0],
-        role: 'gamer',
+        role: userRole,
         createdAt: new Date().toISOString(),
         photoURL: result.user.photoURL || null,
         stats: {
@@ -95,6 +105,11 @@ export const signInWithGoogle = async () => {
       
       await setDoc(userDocRef, userData);
       console.log('User document created successfully');
+      
+      // Log admin promotion if applicable
+      if (userRole === 'admin') {
+        console.log(`🔑 User ${result.user.email} automatically promoted to admin during Google signup`);
+      }
     } else {
       console.log('User document already exists');
     }
@@ -163,11 +178,13 @@ export const handleGoogleRedirectResult = async () => {
       
       if (!userDoc.exists()) {
         console.log('Creating new user document from redirect...');
+        const userRole = shouldBeAdmin(result.user.email) ? 'admin' : 'gamer';
+        
         const userData = {
           uid: result.user.uid,
           email: result.user.email,
           username: result.user.displayName || result.user.email.split('@')[0],
-          role: 'gamer',
+          role: userRole,
           createdAt: new Date().toISOString(),
           photoURL: result.user.photoURL || null,
           stats: {
@@ -180,6 +197,11 @@ export const handleGoogleRedirectResult = async () => {
         
         await setDoc(userDocRef, userData);
         console.log('User document created successfully from redirect');
+        
+        // Log admin promotion if applicable
+        if (userRole === 'admin') {
+          console.log(`🔑 User ${result.user.email} automatically promoted to admin during redirect signup`);
+        }
       }
       
       return result;

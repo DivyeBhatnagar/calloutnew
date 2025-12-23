@@ -28,7 +28,7 @@ import {
 export default function TopNavbar() {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { user, userProfile, logout } = useAuth();
+  const { user, userProfile, logout, isAdmin } = useAuth();
   const router = useRouter();
 
   const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -49,15 +49,20 @@ export default function TopNavbar() {
     handleMenuClose();
   };
 
-  const navigationLinks = [
+  // Base navigation links for all users
+  const baseNavigationLinks = [
     { label: 'Dashboard', href: '/dashboard' },
     { label: 'Register Tournament', href: '/dashboard/tournament-registration' },
     { label: 'Tournaments', href: '/dashboard/tournaments' },
     { label: 'My Queries', href: '/dashboard/my-queries' },
     { label: 'Profile', href: '/dashboard/profile' },
     { label: 'Settings', href: '/dashboard/settings' },
-    { label: 'Admin', href: '/dashboard/admin' },
   ];
+
+  // Add admin link only for admin users
+  const navigationLinks = isAdmin() 
+    ? [...baseNavigationLinks, { label: 'Admin', href: '/dashboard/admin' }]
+    : baseNavigationLinks;
 
   return (
     <>

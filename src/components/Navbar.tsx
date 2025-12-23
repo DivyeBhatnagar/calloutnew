@@ -7,7 +7,7 @@ import { useAuth } from '../contexts/AuthContext';
 
 export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { user, userProfile, logout } = useAuth();
+  const { user, userProfile, logout, isAdmin } = useAuth();
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
