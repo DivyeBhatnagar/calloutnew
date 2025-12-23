@@ -9,7 +9,11 @@ export const metadata: Metadata = {
   description: "Join India's premier esports platform. Compete in tournaments, build your squad, and rise through the ranks in a fair and competitive gaming environment.",
   keywords: "esports, gaming, tournaments, India, competitive gaming, VALORANT, CS2, BGMI",
   authors: [{ name: "CALLOUT ESPORTS Team" }],
-  viewport: "width=device-width, initial-scale=1",
+};
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
 };
 
 export default function RootLayout({
