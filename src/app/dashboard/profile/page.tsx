@@ -66,10 +66,7 @@ export default function ProfilePage() {
         bio: formData.bio,
         favoriteGame: formData.favoriteGame,
         discordId: formData.discordId,
-        stats: {
-          ...userProfile?.stats,
-          currentRank: formData.currentRank,
-        },
+        // Note: currentRank is not included as it's auto-calculated
         updatedAt: new Date().toISOString(),
       });
 
@@ -267,16 +264,12 @@ export default function ProfilePage() {
                   fullWidth
                   label="Current Rank"
                   value={formData.currentRank}
-                  onChange={(e) => setFormData({ ...formData, currentRank: e.target.value })}
-                  disabled={!editing || loading}
-                  placeholder="Bronze, Silver, Gold, etc."
+                  disabled
+                  helperText="Rank is automatically calculated based on tournament performance"
                   sx={{
                     '& .MuiOutlinedInput-root': {
                       borderRadius: 2,
-                      background: editing ? '#FFFFFF' : '#f9f9f9',
-                      boxShadow: editing
-                        ? 'inset 2px 2px 4px rgba(0, 0, 0, 0.06), inset -2px -2px 4px rgba(255, 255, 255, 0.9)'
-                        : 'none',
+                      background: '#f9f9f9',
                     },
                   }}
                 />
