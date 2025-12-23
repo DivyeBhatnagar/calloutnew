@@ -22,7 +22,7 @@ import {
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { collection, getDocs, query, where } from 'firebase/firestore';
-import { db } from '../../firebase/config.js';
+import { db } from '../../firebase/config';
 
 interface Game {
   id: string;
