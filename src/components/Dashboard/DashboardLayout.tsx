@@ -10,7 +10,7 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
-    <Box sx={{ minHeight: '100vh', background: '#FFFFFF', display: 'flex', flexDirection: 'column' }}>
+    <Box sx={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f8faff 0%, #ffffff 100%)', display: 'flex', flexDirection: 'column' }}>
       <TopNavbar />
       
       {/* Main Content */}

@@ -56,7 +56,6 @@ export default function TopNavbar() {
     { label: 'Tournaments', href: '/dashboard/tournaments' },
     { label: 'My Queries', href: '/dashboard/my-queries' },
     { label: 'Profile', href: '/dashboard/profile' },
-    { label: 'Settings', href: '/dashboard/settings' },
   ];
 
   // Add admin link only for admin users

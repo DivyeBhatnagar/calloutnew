@@ -28,8 +28,12 @@ import {
   Reply,
   Send,
   Refresh,
+  Delete,
+  Warning,
 } from '@mui/icons-material';
 import { getAllQueries, updateQueryStatus } from '../../firebase/firestore';
+import { deleteDoc, doc } from 'firebase/firestore';
+import { db } from '../../firebase/config';
 
 interface Query {
   id: string;
@@ -50,6 +54,9 @@ export default function QueryManager() {
   const [loading, setLoading] = useState(true);
   const [selectedQuery, setSelectedQuery] = useState<Query | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [queryToDelete, setQueryToDelete] = useState<Query | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const [replyText, setReplyText] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [tabValue, setTabValue] = useState(0);
@@ -119,6 +126,39 @@ export default function QueryManager() {
     setDialogOpen(true);
     setError('');
     setSuccess('');
+  };
+
+  const handleDeleteQuery = (query: Query) => {
+    setQueryToDelete(query);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteQuery = async () => {
+    if (!queryToDelete) return;
+
+    setDeleting(true);
+    try {
+      // Try to delete from main queries collection
+      if (!queryToDelete.id.includes('_')) {
+        await deleteDoc(doc(db, 'queries', queryToDelete.id));
+      } else {
+        // Handle user subcollection deletion
+        const [userId, queryId] = queryToDelete.id.split('_');
+        await deleteDoc(doc(db, 'users', userId, 'queries', queryId));
+      }
+      
+      // Update local state
+      setQueries(prev => prev.filter(q => q.id !== queryToDelete.id));
+      setDeleteDialogOpen(false);
+      setQueryToDelete(null);
+      
+      console.log(`✅ Query "${queryToDelete.subject}" deleted successfully`);
+    } catch (error) {
+      console.error('Error deleting query:', error);
+      setError(`Failed to delete query: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setDeleting(false);
+    }
   };
 
   const handleCloseDialog = () => {
@@ -379,18 +419,33 @@ export default function QueryManager() {
                         {formatDate(query.createdAt)}
                       </Typography>
                     </Box>
-                    <Button
-                      variant="outlined"
-                      size="small"
-                      onClick={() => handleViewQuery(query)}
-                      sx={{
-                        borderRadius: 2,
-                        textTransform: 'none',
-                        ml: 2,
-                      }}
-                    >
-                      View & Reply
-                    </Button>
+                    <Box sx={{ display: 'flex', gap: 1 }}>
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        onClick={() => handleViewQuery(query)}
+                        sx={{
+                          borderRadius: 2,
+                          textTransform: 'none',
+                        }}
+                      >
+                        View & Reply
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        color="error"
+                        onClick={() => handleDeleteQuery(query)}
+                        sx={{
+                          borderRadius: 2,
+                          textTransform: 'none',
+                          minWidth: 'auto',
+                          px: 1,
+                        }}
+                      >
+                        <Delete fontSize="small" />
+                      </Button>
+                    </Box>
                   </Box>
                 </CardContent>
               </Card>
@@ -591,6 +646,69 @@ export default function QueryManager() {
             </DialogActions>
           </>
         )}
+      </Dialog>
+
+      {/* Delete Query Confirmation Dialog */}
+      <Dialog 
+        open={deleteDialogOpen} 
+        onClose={() => setDeleteDialogOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Warning sx={{ mr: 1, color: '#d32f2f' }} />
+            <Typography variant="h6" sx={{ fontWeight: 600 }}>
+              Delete Query
+            </Typography>
+          </Box>
+        </DialogTitle>
+        <DialogContent>
+          {queryToDelete && (
+            <Box sx={{ pt: 1 }}>
+              <Alert severity="warning" sx={{ mb: 3 }}>
+                <Typography variant="body2" sx={{ fontWeight: 600, mb: 1 }}>
+                  ⚠️ Warning
+                </Typography>
+                This action cannot be undone. The query will be permanently deleted.
+              </Alert>
+              
+              <Typography variant="body1" sx={{ mb: 2 }}>
+                Are you sure you want to delete this query?
+              </Typography>
+              
+              <Box sx={{ p: 2, bgcolor: '#f8f9fa', borderRadius: 2 }}>
+                <Typography variant="body2" sx={{ fontWeight: 600, mb: 1 }}>
+                  Query Details:
+                </Typography>
+                <Typography variant="body2">
+                  <strong>Subject:</strong> {queryToDelete.subject}
+                </Typography>
+                <Typography variant="body2">
+                  <strong>From:</strong> {queryToDelete.name} ({queryToDelete.email})
+                </Typography>
+                <Typography variant="body2">
+                  <strong>Status:</strong> {queryToDelete.status}
+                </Typography>
+                <Typography variant="body2">
+                  <strong>Date:</strong> {formatDate(queryToDelete.createdAt)}
+                </Typography>
+              </Box>
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+          <Button 
+            onClick={confirmDeleteQuery} 
+            variant="contained" 
+            color="error"
+            disabled={deleting}
+            startIcon={<Delete />}
+          >
+            {deleting ? 'Deleting...' : 'Delete Query'}
+          </Button>
+        </DialogActions>
       </Dialog>
     </Paper>
   );

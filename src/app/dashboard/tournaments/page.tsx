@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
-import { getTournaments } from '../../../firebase/firestore';
-import { collection, query, where, onSnapshot, doc, getDoc } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, getDocs } from 'firebase/firestore';
 import { db } from '../../../firebase/config';
 import ProtectedRoute from '../../../components/ProtectedRoute';
 import DashboardLayout from '../../../components/Dashboard/DashboardLayout';
@@ -127,8 +126,29 @@ export default function TournamentsPage() {
   useEffect(() => {
     const fetchTournaments = async () => {
       try {
-        const data = await getTournaments();
-        setTournaments(data);
+        const tournamentsRef = collection(db, 'tournaments');
+        const querySnapshot = await getDocs(tournamentsRef);
+        
+        const tournamentsList: Tournament[] = [];
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          // Convert admin tournament format to display format
+          tournamentsList.push({
+            id: doc.id,
+            name: data.name,
+            game: data.games?.[0]?.name || 'Multiple Games', // Show first game or "Multiple"
+            status: data.status === 'active' ? 'Open' : 
+                   data.status === 'closed' ? 'Closed' : 'Upcoming',
+            entryFee: 0, // Default for now
+            prizePool: 50000, // Default for now
+            maxParticipants: 100, // Default for now
+            participants: [],
+            startDate: data.createdAt || new Date().toISOString(),
+            endDate: data.updatedAt || new Date().toISOString(),
+          });
+        });
+
+        setTournaments(tournamentsList);
       } catch (error: any) {
         console.error('Error fetching tournaments:', error);
         setError('Failed to load tournaments. Please try again.');

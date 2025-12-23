@@ -3,15 +3,17 @@
 import { useState } from 'react';
 import ProtectedRoute from '../../../components/ProtectedRoute';
 import DashboardLayout from '../../../components/Dashboard/DashboardLayout';
-import EventLandingStep from '../../../components/TournamentRegistration/EventLandingStep';
-import CollegeSelectionStep from '../../../components/TournamentRegistration/CollegeSelectionStep';
-import GameSelectionStep from '../../../components/TournamentRegistration/GameSelectionStep';
+import TournamentSelectionStep from '../../../components/TournamentRegistration/TournamentSelectionStep';
+import DynamicCollegeSelectionStep from '../../../components/TournamentRegistration/DynamicCollegeSelectionStep';
+import DynamicGameSelectionStep from '../../../components/TournamentRegistration/DynamicGameSelectionStep';
 import RegistrationFormStep from '../../../components/TournamentRegistration/RegistrationFormStep';
 import SuccessStep from '../../../components/TournamentRegistration/SuccessStep';
 import StepIndicator from '../../../components/TournamentRegistration/StepIndicator';
 import { Container, Box } from '@mui/material';
 
 export interface RegistrationData {
+  tournament: string;
+  tournamentId: string;
   college: string;
   game: string;
   teamName: string;
@@ -21,9 +23,30 @@ export interface RegistrationData {
   playerIds: string[];
 }
 
+interface Tournament {
+  id: string;
+  name: string;
+  logoUrl?: string;
+  description?: string;
+  status: 'draft' | 'active' | 'closed';
+  colleges: Array<{
+    id: string;
+    name: string;
+    logoUrl: string;
+  }>;
+  games: Array<{
+    id: string;
+    name: string;
+    logoUrl: string;
+  }>;
+}
+
 export default function TournamentRegistration() {
   const [currentStep, setCurrentStep] = useState(1);
+  const [selectedTournament, setSelectedTournament] = useState<Tournament | null>(null);
   const [registrationData, setRegistrationData] = useState<RegistrationData>({
+    tournament: '',
+    tournamentId: '',
     college: '',
     game: '',
     teamName: '',
@@ -39,6 +62,16 @@ export default function TournamentRegistration() {
 
   const handleBack = () => {
     setCurrentStep(prev => prev - 1);
+  };
+
+  const handleTournamentSelect = (tournament: Tournament) => {
+    setSelectedTournament(tournament);
+    setRegistrationData(prev => ({ 
+      ...prev, 
+      tournament: tournament.name,
+      tournamentId: tournament.id 
+    }));
+    handleNext();
   };
 
   const handleCollegeSelect = (college: string) => {
@@ -59,23 +92,31 @@ export default function TournamentRegistration() {
   const renderStep = () => {
     switch (currentStep) {
       case 1:
-        return <EventLandingStep onContinue={handleNext} />;
-      case 2:
         return (
-          <CollegeSelectionStep
+          <TournamentSelectionStep
+            onSelect={handleTournamentSelect}
+            selectedTournament={selectedTournament}
+          />
+        );
+      case 2:
+        return selectedTournament ? (
+          <DynamicCollegeSelectionStep
+            tournament={selectedTournament}
             onSelect={handleCollegeSelect}
             onBack={handleBack}
             selectedCollege={registrationData.college}
           />
-        );
+        ) : null;
       case 3:
-        return (
-          <GameSelectionStep
+        return selectedTournament ? (
+          <DynamicGameSelectionStep
+            tournament={selectedTournament}
+            selectedCollege={registrationData.college}
             onSelect={handleGameSelect}
             onBack={handleBack}
             selectedGame={registrationData.game}
           />
-        );
+        ) : null;
       case 4:
         return (
           <RegistrationFormStep
@@ -92,7 +133,12 @@ export default function TournamentRegistration() {
           />
         );
       default:
-        return <EventLandingStep onContinue={handleNext} />;
+        return (
+          <TournamentSelectionStep
+            onSelect={handleTournamentSelect}
+            selectedTournament={selectedTournament}
+          />
+        );
     }
   };
 

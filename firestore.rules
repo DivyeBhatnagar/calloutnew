@@ -34,6 +34,8 @@ service cloud.firestore {
     match /tournaments/{tournamentId} {
       allow read: if isAuthenticated();
       allow write: if isAdmin();
+      allow create: if isAdmin();
+      allow delete: if isAdmin();
     }
     
     // Registrations collection - users can create their own, admins can read all

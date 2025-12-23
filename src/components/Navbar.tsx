@@ -47,7 +47,7 @@ export default function Navbar() {
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center gap-8">
               <a href="#tournaments" className="nav-link">Tournaments</a>
-              <a href="#games" className="nav-link">Games</a>
+              <Link href="/games" className="nav-link">Games</Link>
               <Link href="/about" className="nav-link">About Us</Link>
               {user && <Link href="/dashboard" className="nav-link">Dashboard</Link>}
             </div>
@@ -108,7 +108,7 @@ export default function Navbar() {
         
         <div className="mobile-menu-links">
           <a href="#tournaments" className="mobile-menu-link" onClick={closeMobileMenu}>Tournaments</a>
-          <a href="#games" className="mobile-menu-link" onClick={closeMobileMenu}>Games</a>
+          <Link href="/games" className="mobile-menu-link" onClick={closeMobileMenu}>Games</Link>
           <Link href="/about" className="mobile-menu-link" onClick={closeMobileMenu}>About Us</Link>
           {user && <Link href="/dashboard" className="mobile-menu-link" onClick={closeMobileMenu}>Dashboard</Link>}
         </div>

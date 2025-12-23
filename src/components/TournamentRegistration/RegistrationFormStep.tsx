@@ -130,7 +130,8 @@ export default function RegistrationFormStep({
 
       const registrationPayload = {
         // Tournament info
-        tournament: 'Campus Showdown',
+        tournament: registrationData.tournament || 'Campus Showdown',
+        tournamentId: registrationData.tournamentId || '',
         college: registrationData.college || '',
         game: registrationData.game || '',
         
